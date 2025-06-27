@@ -1,8 +1,9 @@
 name: Daily Auto Commit
 
 on:
+  workflow_dispatch:  # Allows manual run
   schedule:
-    - cron: '55 4 * * *' # Runs daily at 10:00 AM IST
+    - cron: '0 5 * * *'  # 🔄 Runs daily at 10:30 AM IST
 
 jobs:
   auto-commit:
@@ -11,13 +12,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true
 
       - name: Clear and Update .txt Files
         run: |
-          # Clear contents of all .txt files in the repository
           find . -name "*.txt" -type f -exec sh -c '> "$1"' _ {} \;
-
-          # Add a new timestamp to daily-log.txt
+          touch daily-log.txt
           echo "Updated on $(date)" >> daily-log.txt
 
       - name: Commit and Push Changes
@@ -25,5 +26,5 @@ jobs:
           git config --global user.name "Mahesh27072004"
           git config --global user.email "navnathsanap976@gmail.com"
           git add .
-          git commit -m "$(date)"
+          git commit -m "Auto update: $(date)" || echo "No changes to commit"
           git push
